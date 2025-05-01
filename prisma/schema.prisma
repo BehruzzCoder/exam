@@ -1,0 +1,307 @@
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model User {
+//   id         Int      @id @default(autoincrement())
+//   FirstName  String
+//   Lastname   String
+//   region_id  Int
+//   region     Region   @relation(fields: [region_id], references: [id])
+//   year       Int
+//   email      String   @unique
+//   password   String
+//   img        String
+//   role       UserRole
+//   status     UserStatus
+//   ordred     Json[]
+//   sessions   Json[]
+//   orders     Order[]    
+//   likes      Like[]      
+//   comments   Comment[]   
+// }
+
+// enum UserStatus {
+//   ACTIVE
+//   PENDING
+// }
+
+// enum UserRole {
+//   Admin
+//   User
+//   Super_admin
+// }
+
+// model Product {
+//   id          Int        @id @default(autoincrement())
+//   name        String
+//   price       Int
+//   category_id Int
+//   category    Category   @relation(fields: [category_id], references: [id])
+//   xolati      ProductXolati
+//   colors_id   Int[]
+//   count       Int
+//   skidka      Int
+//   description String
+//   img         String
+//   star        Int
+//   like        Int
+//   views       Int
+//   createdAT   DateTime   @default(now())
+//   orders      Order[]     
+//   likes       Like[]      
+//   comments    Comment[]   
+// }
+
+// enum ProductXolati {
+//   new
+//   old
+// }
+
+// model Region {
+//   id    Int    @id @default(autoincrement())
+//   name  String
+//   User  User[]
+// }
+
+// model Order {
+//   id         Int     @id @default(autoincrement())
+//   user_id    Int
+//   product_id Int
+//   user       User    @relation(fields: [user_id], references: [id])
+//   product    Product @relation(fields: [product_id], references: [id])
+// }
+
+// model Like {
+//   id         Int     @id @default(autoincrement())
+//   user_id    Int
+//   product_id Int
+//   user       User    @relation(fields: [user_id], references: [id])
+//   product    Product @relation(fields: [product_id], references: [id])
+// }
+
+// model Category {
+//   id      Int       @id @default(autoincrement())
+//   name    String
+//   Product Product[]
+// }
+
+// model Comment {
+//   id         Int     @id @default(autoincrement())
+//   user_id    Int
+//   product_id Int
+//   message    String
+//   star       Int
+//   user       User    @relation(fields: [user_id], references: [id])
+//   product    Product @relation(fields: [product_id], references: [id])
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  firstName String
+  lastName  String
+  year      Int
+  email     String
+  password  String
+  image     String
+  role      RoleStatus
+
+  Region    Region? @relation(fields: [region_id], references: [id])
+  region_id Int?
+
+  sendChats     Chat[] @relation("FromUser")
+  receivedChats Chat[] @relation("ToUser")
+
+  FromMessage Message[] @relation("FromUser")
+  ToMessage   Message[] @relation("ToUser")
+
+  Comments Comment[]
+  Views    View[]
+  Likes    Like[]
+  Orders   Order[]
+  Session  Session[]
+
+  createdAt DateTime @default(now())
+}
+
+model Region {
+  id    Int    @id @default(autoincrement())
+  name  String
+  users User[]
+}
+
+model Chat {
+  id Int @id @default(autoincrement())
+
+  from    User @relation("FromUser", fields: [from_id], references: [id])
+  from_id Int
+
+  to    User @relation("ToUser", fields: [to_id], references: [id])
+  to_id Int
+
+  Message Message[]
+
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+
+  chat    Chat @relation(fields: [chat_id], references: [id])
+  chat_id Int
+
+  from    User @relation("FromUser", fields: [from_id], references: [id])
+  from_id Int
+
+  to    User @relation("ToUser", fields: [to_id], references: [id])
+  to_id Int
+
+  text String
+
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        Int         @id @default(autoincrement())
+  name      String
+  type      TypesStatus
+  product   Product[]
+  createdAt DateTime    @default(now())
+}
+
+model Product {
+  id          Int             @id @default(autoincrement())
+  name        String
+  price       Float
+  situation   ConditionStatus
+  count       Int
+  sale        Float
+  description String
+  createdAt   DateTime        @default(now())
+  Category    Category?       @relation(fields: [category_id], references: [id])
+  category_id Int?
+
+  Comments      Comment[]
+  Views         View[]
+  Likes         Like[]
+  productColors ProductColor[]
+  Orders        Order[]
+}
+
+model Color {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  productColors ProductColor[]
+}
+
+model ProductColor {
+  id Int @id @default(autoincrement())
+
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id Int
+
+  color    Color @relation(fields: [color_id], references: [id])
+  color_id Int
+
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id          Int    @id @default(autoincrement())
+  description String
+  star        Int
+
+  User    User? @relation(fields: [user_id], references: [id])
+  user_id Int?
+
+  Product    Product? @relation(fields: [product_id], references: [id])
+  product_id Int?
+
+  createdAt DateTime @default(now())
+}
+
+model View {
+  id Int @id @default(autoincrement())
+
+  user    User @relation(fields: [user_id], references: [id])
+  user_id Int
+
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([user_id, product_id])
+}
+
+model Like {
+  id Int @id @default(autoincrement())
+
+  user    User @relation(fields: [user_id], references: [id])
+  user_id Int
+
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([user_id, product_id])
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  count Int
+
+  User    User? @relation(fields: [user_id], references: [id])
+  user_id Int?
+
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id Int
+
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+enum RoleStatus {
+  ADMIN
+  USER
+  SUPERADMIN
+}
+
+enum TypesStatus {
+  PHONE
+  ELECTRONIC
+  LAPTOP
+  ACCESSORIE
+}
+
+enum ConditionStatus {
+  NEW
+  MIDDLE
+  OLD
+}
