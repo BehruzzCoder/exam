@@ -16,7 +16,7 @@ export class RegionService {
   }
 
   findAll() {
-    return this.prisma.region.findMany({ include: { users: true } });
+    return this.prisma.region.findMany();
   }
 
   findOne(id: number) {
