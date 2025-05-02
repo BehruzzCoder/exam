@@ -77,11 +77,23 @@ export class UserService {
       role: user.role,
     });
 
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await this.prisma.session.create({
+      data: {
+        user_id: user.id,
+        token,
+        expiresAt,
+      },
+    });
+
     return {
       message: 'Login successful',
       token,
     };
   }
+
 
   async findAll() {
     const users = await this.prisma.user.findMany({
@@ -152,11 +164,11 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(ChangedPassword.new_password, 10);
 
     const updatedUser = await this.prisma.user.update({
-      where: { id: user.id } ,
+      where: { id: user.id },
       data: { password: hashedPassword },
     });
 
-    return {message: "password changed", updatedUser};
+    return { message: "password changed", updatedUser };
   }
 
 }

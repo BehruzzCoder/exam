@@ -15,11 +15,12 @@ import { PassportModule } from '@nestjs/passport';
 import { ChatModule } from './chat/chat.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { MeModule } from './me/me.module';
+import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
   imports: [UserModule, PrismaModule, ProductModule, RegionModule, CategoryModule, LikeModule, OrderModule, CommentModule, EmailModule,PassportModule, ChatModule,MulterModule.register({
     dest: "./uploads"
-  }), MeModule],
+  }), MeModule, SessionsModule],
   controllers: [AppController],
   providers: [AppService, EmailService],
 })
